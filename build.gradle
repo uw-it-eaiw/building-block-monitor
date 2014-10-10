@@ -25,6 +25,7 @@ configurations.all {
 }
 
 jar {
+    archiveName = 'monitor.jar'
     baseName = 'blocks-monitor'
     version =  '0.1.0'
 }
