@@ -20,7 +20,9 @@ import blocks.monitor.config.MongoConfiguration;
 import blocks.monitor.model.Record;
 import blocks.monitor.properties.ContentProperties;
 import blocks.monitor.properties.MongoProperties;
+import blocks.monitor.properties.NotificationProperties;
 import blocks.monitor.properties.SecurityProperties;
+import blocks.monitor.service.NotificationService;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -40,8 +42,8 @@ import java.util.List;
 @Configuration
 @EnableAutoConfiguration
 @ComponentScan
-@PropertySource(value = {"file:/etc/building-block-monitor/monitor.properties"}, ignoreResourceNotFound = true)
-@EnableConfigurationProperties({ContentProperties.class, MongoProperties.class, SecurityProperties.class})
+@PropertySource(value = {"file:/etc/building-block-monitor/monitor.properties", "file:/data/building-blocks/etc/monitor.properties"}, ignoreResourceNotFound = true)
+@EnableConfigurationProperties({ContentProperties.class, MongoProperties.class, NotificationProperties.class, SecurityProperties.class})
 @Import({ContentConfiguration.class, MongoConfiguration.class})
 public class Monitor implements CommandLineRunner {
 
@@ -50,17 +52,16 @@ public class Monitor implements CommandLineRunner {
     @Autowired
     private Check[] checks;
 
+    @Autowired
+    private NotificationService notificationService;
+
     @Override
     public void run(String... args) {
         LOGGER.info("Running checks");
         if (checks != null) {
             for (Check check : checks) {
                 List<Record> records = check.execute();
-                if (records != null) {
-                    for (Record record : records) {
-                        LOGGER.debug(record.toString());
-                    }
-                }
+                notificationService.notify(records);
             }
         }
         LOGGER.info("All checks completed");

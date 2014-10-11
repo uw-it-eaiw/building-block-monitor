@@ -91,7 +91,11 @@ public class KeyManagerCabinet {
                 return new KeyManagerCabinet(null, null, null);
 
 	        KeyStore ks = KeyStore.getInstance(keystoreType);
-			FileInputStream fis = new FileInputStream(securitySettings.getKeystoreFile());
+
+//            System.setProperty("javax.net.ssl.keyStore", securitySettings.getKeystoreFile());
+//            System.setProperty("javax.net.ssl.keyStorePassword", securitySettings.getKeystorePassword());
+
+            FileInputStream fis = new FileInputStream(securitySettings.getKeystoreFile());
             char[] password = securitySettings.getKeystorePassword() != null ? securitySettings.getKeystorePassword().toCharArray() : "changeit".toCharArray();
 
             try {

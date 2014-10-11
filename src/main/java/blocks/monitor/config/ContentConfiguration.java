@@ -65,13 +65,15 @@ public class ContentConfiguration {
 
         SSLContext sslContext = SSLContext.getInstance(SSLConnectionSocketFactory.SSL);
         sslContext.init(cabinet.getKeyManagers(), cabinet.getTrustManagers(), new SecureRandom());
+
         LayeredConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
 
         CloseableHttpClient client =
                 HttpClients.custom()
                         .setConnectionManager(cm)
                         .setDefaultCredentialsProvider(credentialsProvider)
-                        .setSSLSocketFactory(socketFactory)
+//                        .setSSLSocketFactory(socketFactory)
+//                        .setSslcontext(sslContext)
                         .build();
 
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));

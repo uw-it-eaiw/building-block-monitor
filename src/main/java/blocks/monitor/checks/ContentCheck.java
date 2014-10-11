@@ -64,6 +64,7 @@ public class ContentCheck implements Check {
 
         } catch (RestClientException e) {
             LOGGER.error("Unable to retrieve item ", e);
+            record.setDescription(e.getMessage());
         }
 
         record.setStatus(status);

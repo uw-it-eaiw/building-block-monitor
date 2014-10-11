@@ -40,6 +40,7 @@ public class ActAsHeaderInterceptor implements ClientHttpRequestInterceptor {
 
         HttpHeaders headers = request.getHeaders();
         headers.add("x-uw-act-as", "pschurr");
+
         return execution.execute(request, body);
     }
 

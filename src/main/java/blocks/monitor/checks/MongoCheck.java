@@ -52,9 +52,12 @@ public class MongoCheck implements Check {
 
         long start = System.currentTimeMillis();
         Status status = Status.FAILURE;
-        if (mongoOperations.collectionExists(collectionName))
-            status = Status.SUCCESS;
-
+        try {
+            if (mongoOperations.collectionExists(collectionName))
+                status = Status.SUCCESS;
+        } catch (Exception e) {
+            record.setDescription(e.getMessage());
+        }
         record.setStatus(status);
         record.setElapsed(System.currentTimeMillis() - start);
 
