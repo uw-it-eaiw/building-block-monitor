@@ -23,6 +23,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ContentProperties {
 
     String uri;
+    String actAsHeaderName;
     String actAsUser;
 
     public String getUri() {
@@ -31,6 +32,14 @@ public class ContentProperties {
 
     public void setUri(String uri) {
         this.uri = uri;
+    }
+
+    public String getActAsHeaderName() {
+        return actAsHeaderName;
+    }
+
+    public void setActAsHeaderName(String actAsHeaderName) {
+        this.actAsHeaderName = actAsHeaderName;
     }
 
     public String getActAsUser() {

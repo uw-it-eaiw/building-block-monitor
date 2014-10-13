@@ -19,6 +19,11 @@ import blocks.monitor.properties.SecurityProperties;
 import blocks.monitor.security.ActAsHeaderInterceptor;
 import blocks.monitor.security.KeyManagerCabinet;
 import org.apache.http.client.CredentialsProvider;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.scheme.SchemeRegistry;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
 import org.apache.http.conn.socket.LayeredConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.StrictHostnameVerifier;
@@ -35,6 +40,7 @@ import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.web.client.RestTemplate;
 
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -54,13 +60,7 @@ public class ContentConfiguration {
     }
 
     @Bean
-    public RestTemplate contentOperations(ContentProperties contentProperties, KeyManagerCabinet cabinet) throws NoSuchAlgorithmException, KeyManagementException {
-        LOGGER.debug("Configuring HTTP operations");
-        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager();
-        cm.setMaxTotal(5);
-
-        CredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-
+    public CloseableHttpClient client(KeyManagerCabinet cabinet) throws Exception {
         X509HostnameVerifier hostnameVerifier = new StrictHostnameVerifier();
 
         SSLContext sslContext = SSLContext.getInstance(SSLConnectionSocketFactory.SSL);
@@ -68,16 +68,28 @@ public class ContentConfiguration {
 
         LayeredConnectionSocketFactory socketFactory = new SSLConnectionSocketFactory(sslContext, hostnameVerifier);
 
+        final Registry<ConnectionSocketFactory> sfr = RegistryBuilder.<ConnectionSocketFactory>create()
+                .register("https", socketFactory)
+                .build();
+
+        PoolingHttpClientConnectionManager cm = new PoolingHttpClientConnectionManager(sfr);
+        cm.setMaxTotal(10);
+
         CloseableHttpClient client =
                 HttpClients.custom()
                         .setConnectionManager(cm)
-                        .setDefaultCredentialsProvider(credentialsProvider)
-//                        .setSSLSocketFactory(socketFactory)
-//                        .setSslcontext(sslContext)
+                        .setSSLSocketFactory(socketFactory)
                         .build();
 
+        return client;
+    }
+
+    @Bean
+    public RestTemplate contentOperations(ContentProperties contentProperties, CloseableHttpClient client) throws NoSuchAlgorithmException, KeyManagementException {
+        LOGGER.debug("Configuring HTTP operations");
+
         RestTemplate restTemplate = new RestTemplate(new HttpComponentsClientHttpRequestFactory(client));
-        restTemplate.setInterceptors(Collections.<ClientHttpRequestInterceptor>singletonList(new ActAsHeaderInterceptor(contentProperties.getActAsUser())));
+        restTemplate.setInterceptors(Collections.<ClientHttpRequestInterceptor>singletonList(new ActAsHeaderInterceptor(contentProperties.getActAsHeaderName(), contentProperties.getActAsUser())));
         return restTemplate;
     }
 

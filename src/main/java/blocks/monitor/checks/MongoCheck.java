@@ -18,6 +18,8 @@ package blocks.monitor.checks;
 import blocks.monitor.Check;
 import blocks.monitor.enumeration.Status;
 import blocks.monitor.model.Record;
+import blocks.monitor.properties.MongoProperties;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.stereotype.Component;
@@ -34,13 +36,21 @@ public class MongoCheck implements Check {
     @Autowired
     MongoOperations mongoOperations;
 
+    @Autowired
+    MongoProperties mongoProperties;
+
     @Override
     public List<Record> execute() {
         List<Record> records = new ArrayList<Record>();
 
-        records.add(checkCollection("authorization"));
-        records.add(checkCollection("process"));
-        records.add(checkCollection("instance"));
+        if (StringUtils.isNotEmpty(mongoProperties.getCollectionsRequired())) {
+            String[] collectionNames = mongoProperties.getCollectionsRequired().split(",");
+            if (collectionNames != null && collectionNames.length > 0) {
+                for (String collectionName : collectionNames) {
+                    records.add(checkCollection(collectionName));
+                }
+            }
+        }
 
         return records;
     }

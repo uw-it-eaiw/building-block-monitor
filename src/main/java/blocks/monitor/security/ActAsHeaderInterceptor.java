@@ -27,9 +27,11 @@ import java.io.IOException;
  */
 public class ActAsHeaderInterceptor implements ClientHttpRequestInterceptor {
 
-    private String netId;
+    private final String headerName;
+    private final String netId;
 
-    public ActAsHeaderInterceptor(String netId) {
+    public ActAsHeaderInterceptor(String headerName, String netId) {
+        this.headerName = headerName;
         this.netId = netId;
     }
 
@@ -39,7 +41,7 @@ public class ActAsHeaderInterceptor implements ClientHttpRequestInterceptor {
             throws IOException {
 
         HttpHeaders headers = request.getHeaders();
-        headers.add("x-uw-act-as", "pschurr");
+        headers.add(headerName, netId);
 
         return execution.execute(request, body);
     }

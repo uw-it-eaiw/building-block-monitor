@@ -44,6 +44,8 @@ public class MongoProperties {
 
     private boolean useSsl;
 
+    private String collectionsRequired;
+
     public String getServerAddresses() {
         return serverAddresses;
     }
@@ -94,6 +96,14 @@ public class MongoProperties {
 
     public void setUseSsl(boolean useSsl) {
         this.useSsl = useSsl;
+    }
+
+    public String getCollectionsRequired() {
+        return collectionsRequired;
+    }
+
+    public void setCollectionsRequired(String collectionsRequired) {
+        this.collectionsRequired = collectionsRequired;
     }
 
     public MongoClient createMongoClient(MongoClientOptions options)

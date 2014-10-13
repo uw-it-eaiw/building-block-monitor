@@ -19,6 +19,14 @@ import blocks.monitor.content.ItemSearchResults;
 import blocks.monitor.enumeration.Status;
 import blocks.monitor.model.Record;
 import blocks.monitor.properties.ContentProperties;
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.cache.HttpCacheContext;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.utils.DateUtils;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,7 +34,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestOperations;
 
+import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -36,6 +47,9 @@ import java.util.List;
 public class ContentCheck implements Check {
 
     private static final Logger LOGGER = Logger.getLogger(ContentCheck.class.getName());
+
+    @Autowired
+    CloseableHttpClient client;
 
     @Autowired
     ContentProperties contentProperties;
@@ -51,15 +65,16 @@ public class ContentCheck implements Check {
         record.setKey("contentItemSearchResults");
         record.setDescription("Able to search for items");
 
-        String uri = contentProperties.getUri() + "/item.json";
+        String location = contentProperties.getUri() + "/item.json";
         long start = System.currentTimeMillis();
 
         Status status = Status.FAILURE;
         try {
+            URI uri = URI.create(location);
             ResponseEntity<ItemSearchResults> searchResults =
                     contentOperations.getForEntity(uri, ItemSearchResults.class);
 
-            if (searchResults != null)
+            if (searchResults.getStatusCode().is2xxSuccessful())
                 status = Status.SUCCESS;
 
         } catch (RestClientException e) {
