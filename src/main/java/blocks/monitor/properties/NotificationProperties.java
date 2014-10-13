@@ -24,7 +24,7 @@ public class NotificationProperties {
 
     private String applicationName;
     private String mailServerHost;
-    private int mailServerPort = 22;
+    private int mailServerPort = 25;
     private String mailServerUsername;
     private String mailServerPassword;
     private boolean mailServerTls;
