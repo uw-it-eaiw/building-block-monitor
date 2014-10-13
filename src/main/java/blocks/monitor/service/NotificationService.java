@@ -108,6 +108,8 @@ public class NotificationService {
             return true;
         } catch (EmailException e) {
             LOGGER.error("Unable to send email with subject " + email.getSubject());
+            LOGGER.error("Error is " + e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
