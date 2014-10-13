@@ -103,9 +103,8 @@ public class NotificationService {
             }
 
             LOGGER.info("Subject: " + email.getSubject());
-            LOGGER.info(email.getMimeMessage());
-
             email.send();
+            LOGGER.info("Successfully dispatched message");
             return true;
         } catch (EmailException e) {
             LOGGER.error("Unable to send email with subject " + email.getSubject());
