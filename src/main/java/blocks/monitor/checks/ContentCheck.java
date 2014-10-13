@@ -49,9 +49,6 @@ public class ContentCheck implements Check {
     private static final Logger LOGGER = Logger.getLogger(ContentCheck.class.getName());
 
     @Autowired
-    CloseableHttpClient client;
-
-    @Autowired
     ContentProperties contentProperties;
 
     @Autowired
